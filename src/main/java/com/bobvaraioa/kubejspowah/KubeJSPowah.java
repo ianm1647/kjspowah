@@ -11,6 +11,8 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TagsUpdatedEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.InterModComms;
@@ -32,6 +34,12 @@ public class KubeJSPowah {
     public static final String MODID = "kubejspowah";
 
     public KubeJSPowah() {
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, KubeJSPowah::serverReload);
+    }
 
+    public static void serverReload(TagsUpdatedEvent event) {
+        KubeJSPowahPlugin.COOLANTS.post(KubeJSPowahPlugin.CoolantsEvent.INSTANCE);
+        KubeJSPowahPlugin.HEAT_SOURCE.post(KubeJSPowahPlugin.HeatSourceEvent.INSTANCE);
+        KubeJSPowahPlugin.MAGMATIC_FLUID.post(KubeJSPowahPlugin.MagmaticFluidEvent.INSTANCE);
     }
 }
