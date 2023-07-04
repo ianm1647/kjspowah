@@ -1,11 +1,16 @@
 package com.bobvaraioa.kubejspowah;
 
-import com.bobvaraioa.kubejspowah.recipes.EnergizingOrbRecipe;
 import dev.latvian.mods.kubejs.KubeJSPlugin;
 import dev.latvian.mods.kubejs.event.EventGroup;
 import dev.latvian.mods.kubejs.event.EventHandler;
 import dev.latvian.mods.kubejs.event.EventJS;
-import dev.latvian.mods.kubejs.recipe.RegisterRecipeTypesEvent;
+import dev.latvian.mods.kubejs.item.InputItem;
+import dev.latvian.mods.kubejs.item.OutputItem;
+import dev.latvian.mods.kubejs.recipe.RecipeKey;
+import dev.latvian.mods.kubejs.recipe.component.ItemComponents;
+import dev.latvian.mods.kubejs.recipe.component.NumberComponent;
+import dev.latvian.mods.kubejs.recipe.schema.RecipeSchema;
+import dev.latvian.mods.kubejs.recipe.schema.RegisterRecipeSchemasEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -18,10 +23,19 @@ public class KubeJSPowahPlugin extends KubeJSPlugin {
     public static EventHandler HEAT_SOURCE = GROUP.server("registerHeatSource", () -> HeatSourceEvent.class);
     public static EventHandler MAGMATIC_FLUID = GROUP.server("registerMagmaticFluid", () -> MagmaticFluidEvent.class);
 
-    @Override
-    public void registerRecipeTypes(RegisterRecipeTypesEvent event) {
-        event.register(new ResourceLocation("powah:energizing"), EnergizingOrbRecipe::new);
+    interface EnergizingOrbRecipe {
+        RecipeKey<InputItem[]> INPUTS = ItemComponents.UNWRAPPED_INPUT_ARRAY.key("ingredients");
+        RecipeKey<OutputItem> OUTPUT = ItemComponents.OUTPUT.key("result");
+        RecipeKey<Long> ENERGY = NumberComponent.LONG.key("energy");
+
+        RecipeSchema SCHEMA = new RecipeSchema(INPUTS, OUTPUT, ENERGY);/home/bob/modding/kjspowah/build.gradle
     }
+
+    @Override
+    public void registerRecipeSchemas(RegisterRecipeSchemasEvent event) {
+        event.register(new ResourceLocation("powah:energizing"), EnergizingOrbRecipe.SCHEMA);
+    }
+
     @Override
     public void registerEvents() {
         GROUP.register();

@@ -1,6 +1,7 @@
 package com.bobvaraioa.kubejspowah;
 
 import com.mojang.logging.LogUtils;
+import dev.latvian.mods.kubejs.script.ScriptType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -38,8 +39,8 @@ public class KubeJSPowah {
     }
 
     public static void serverReload(TagsUpdatedEvent event) {
-        KubeJSPowahPlugin.COOLANTS.post(KubeJSPowahPlugin.CoolantsEvent.INSTANCE);
-        KubeJSPowahPlugin.HEAT_SOURCE.post(KubeJSPowahPlugin.HeatSourceEvent.INSTANCE);
-        KubeJSPowahPlugin.MAGMATIC_FLUID.post(KubeJSPowahPlugin.MagmaticFluidEvent.INSTANCE);
+        KubeJSPowahPlugin.COOLANTS.post(ScriptType.SERVER, KubeJSPowahPlugin.CoolantsEvent.INSTANCE);
+        KubeJSPowahPlugin.HEAT_SOURCE.post(ScriptType.SERVER, KubeJSPowahPlugin.HeatSourceEvent.INSTANCE);
+        KubeJSPowahPlugin.MAGMATIC_FLUID.post(ScriptType.SERVER, KubeJSPowahPlugin.MagmaticFluidEvent.INSTANCE);
     }
 }
