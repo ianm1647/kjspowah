@@ -28,7 +28,7 @@ public class KubeJSPowahPlugin extends KubeJSPlugin {
         RecipeKey<OutputItem> OUTPUT = ItemComponents.OUTPUT.key("result");
         RecipeKey<Long> ENERGY = NumberComponent.LONG.key("energy");
 
-        RecipeSchema SCHEMA = new RecipeSchema(INPUTS, OUTPUT, ENERGY);/home/bob/modding/kjspowah/build.gradle
+        RecipeSchema SCHEMA = new RecipeSchema(INPUTS, OUTPUT, ENERGY);
     }
 
     @Override
