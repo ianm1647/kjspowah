@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[43,)"
+loaderVersion = "[47,)"
 license = "MIT"
 [[mods]]
     modId = "kubejspowah"
@@ -12,24 +12,24 @@ license = "MIT"
 [[dependencies.kubejspowah]]
     modId = "forge"
     mandatory = true
-    versionRange = "[43,)"
+    versionRange = "[47,)"
     ordering = "NONE"
     side = "BOTH"
 [[dependencies.kubejspowah]]
     modId = "minecraft"
     mandatory = true
-    versionRange = "[1.19.2,1.20)"
+    versionRange = "[1.20.1,)"
     ordering = "NONE"
     side = "BOTH"
 [[dependencies.kubejspowah]]
     modId = "kubejs"
     mandatory = true
-    versionRange = "[1902.6.1-build.268,)"
+    versionRange = "[2001.6.4-build.95,)"
     ordering = "NONE"
     side = "BOTH"
 [[dependencies.kubejspowah]]
     modId = "powah"
     mandatory = true
-    versionRange = "[0.0.0,)" # this is apparently their version???
+    versionRange = "[5.0.4,)"
     ordering = "NONE"
     side = "BOTH"
