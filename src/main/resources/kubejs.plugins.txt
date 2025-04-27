@@ -1,1 +1,1 @@
-com.bobvaraioa.kubejspowah.KubeJSPowahPlugin
+com.bobvarioa.kubejspowah.KubeJSPowahPlugin

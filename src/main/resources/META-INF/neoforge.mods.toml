@@ -1,0 +1,43 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "MIT"
+
+[[mods]]
+modId = "kubejspowah"
+version = "${version}"
+displayName = "KubeJS Powah"
+authors = "BobVarioa"
+description = '''
+
+'''
+
+[[dependencies.kubejspowah]]
+    modId = "neoforge"
+    type = "required"
+    versionRange = "[21.1,)"
+    ordering = "NONE"
+    side = "BOTH"
+[[dependencies.kubejspowah]]
+    modId = "minecraft"
+    type = "required"
+    versionRange = "[1.21.1,)"
+    ordering = "NONE"
+    side = "BOTH"
+[[dependencies.kubejspowah]]
+    modId = "architectury"
+    type = "required"
+    versionRange = "[13.0.8,)"
+    ordering = "AFTER"
+    side = "BOTH"
+[[dependencies.kubejspowah]]
+    modId = "powah"
+    mandatory = true
+    versionRange = "[6.2.3,)"
+    ordering = "NONE"
+    side = "BOTH"
+[[dependencies.kubejspowah]]
+    modId = "kubejs"
+    mandatory = true
+    versionRange = "[2101.7.1-build.181,)"
+    ordering = "NONE"
+    side = "BOTH"
