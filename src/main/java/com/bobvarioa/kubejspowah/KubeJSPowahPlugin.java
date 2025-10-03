@@ -1,5 +1,6 @@
 package com.bobvarioa.kubejspowah;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.latvian.mods.kubejs.event.EventGroup;
 import dev.latvian.mods.kubejs.event.EventGroupRegistry;
@@ -15,7 +16,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class KubeJSPowahPlugin implements KubeJSPlugin {
@@ -40,33 +43,53 @@ public class KubeJSPowahPlugin implements KubeJSPlugin {
     }
 
 
-    private JsonObject toObj(Map<ResourceLocation, Integer> map, String key) {
+    private JsonObject toObj(Map<ResourceLocation, Integer> map, String key, List<ResourceLocation> removals) {
         var res = new JsonObject();
 
         var values = new JsonObject();
         for (var entries : map.entrySet()) {
+            var sub = new JsonObject();
+            sub.addProperty("replace", true);
+
             var obj = new JsonObject();
             obj.addProperty(key, entries.getValue());
-            values.add(entries.getKey().toString(), obj);
+            sub.add("value", obj);
+            values.add(entries.getKey().toString(), sub);
         }
 
         res.add("values", values);
+
+        var removed = new JsonArray();
+        for (var item : removals) {
+            removed.add(item.toString());
+        }
+        res.add("remove", removed);
 
         return res;
     }
 
-    private JsonObject toObj(Map<ResourceLocation, Pair<Integer, Integer>> map, String key, String key2) {
+    private JsonObject toObj(Map<ResourceLocation, Pair<Integer, Integer>> map, String key, String key2, List<ResourceLocation> removals) {
         var res = new JsonObject();
+
 
         var values = new JsonObject();
         for (var entries : map.entrySet()) {
+            var sub = new JsonObject();
+            sub.addProperty("replace", true);
             var obj = new JsonObject();
             obj.addProperty(key, entries.getValue().left());
             obj.addProperty(key2, entries.getValue().right());
-            values.add(entries.getKey().toString(), obj);
+            sub.add("value", obj);
+            values.add(entries.getKey().toString(), sub);
         }
 
         res.add("values", values);
+
+        var removed = new JsonArray();
+        for (var item : removals) {
+            removed.add(item.toString());
+        }
+        res.add("remove", removed);
 
         return res;
     }
@@ -79,70 +102,100 @@ public class KubeJSPowahPlugin implements KubeJSPlugin {
         KubeJSPowahPlugin.HEAT_SOURCE.post(ScriptType.SERVER, KubeJSPowahPlugin.HeatSourceEvent.INSTANCE);
         KubeJSPowahPlugin.MAGMATIC_FLUID.post(ScriptType.SERVER, KubeJSPowahPlugin.MagmaticFluidEvent.INSTANCE);
         KubeJSPowahPlugin.REACTOR_FUEL.post(ScriptType.SERVER, KubeJSPowahPlugin.ReactorFuelEvent.INSTANCE);
-        generator.add(GeneratedData.json(ResourceLocation.fromNamespaceAndPath("powah", "data_maps/block/heat_source"), () -> toObj(HeatSourceEvent.dataBlocks, "temperature")));
-        generator.add(GeneratedData.json(ResourceLocation.fromNamespaceAndPath("powah", "data_maps/fluid/heat_source"), () -> toObj(HeatSourceEvent.dataFluids, "temperature")));
-        generator.add(GeneratedData.json(ResourceLocation.fromNamespaceAndPath("powah", "data_maps/fluid/fluid_coolant"), () -> toObj(CoolantsEvent.dataFluids, "temperature")));
-        generator.add(GeneratedData.json(ResourceLocation.fromNamespaceAndPath("powah", "data_maps/fluid/magmator_fuel"), () -> toObj(MagmaticFluidEvent.dataFluids, "energy_produced")));
-        generator.add(GeneratedData.json(ResourceLocation.fromNamespaceAndPath("powah", "data_maps/item/solid_coolant"), () -> toObj(CoolantsEvent.dataItems, "amount", "temperature")));
-        generator.add(GeneratedData.json(ResourceLocation.fromNamespaceAndPath("powah", "data_maps/item/reactor_fuel"), () -> toObj(ReactorFuelEvent.dataItems, "fuelAmount", "temperature")));
+        generator.add(GeneratedData.json(ResourceLocation.fromNamespaceAndPath("powah", "data_maps/block/heat_source"), () -> toObj(HeatSourceEvent.addedBlocks, "temperature", HeatSourceEvent.removedBlocks)));
+        generator.add(GeneratedData.json(ResourceLocation.fromNamespaceAndPath("powah", "data_maps/fluid/heat_source"), () -> toObj(HeatSourceEvent.addedFluids, "temperature", HeatSourceEvent.removedFluids)));
+        generator.add(GeneratedData.json(ResourceLocation.fromNamespaceAndPath("powah", "data_maps/fluid/fluid_coolant"), () -> toObj(CoolantsEvent.addedFluids, "temperature", CoolantsEvent.removedFluids)));
+        generator.add(GeneratedData.json(ResourceLocation.fromNamespaceAndPath("powah", "data_maps/fluid/magmator_fuel"), () -> toObj(MagmaticFluidEvent.addedFluids, "energy_produced", MagmaticFluidEvent.removedFluids)));
+        generator.add(GeneratedData.json(ResourceLocation.fromNamespaceAndPath("powah", "data_maps/item/solid_coolant"), () -> toObj(CoolantsEvent.addedItems, "amount", "temperature", CoolantsEvent.removedItems)));
+        generator.add(GeneratedData.json(ResourceLocation.fromNamespaceAndPath("powah", "data_maps/item/reactor_fuel"), () -> toObj(ReactorFuelEvent.addedItems, "fuelAmount", "temperature", ReactorFuelEvent.removedItems)));
     }
 
     public static void clear() {
-        CoolantsEvent.dataFluids.clear();
-        CoolantsEvent.dataItems.clear();
-        HeatSourceEvent.dataBlocks.clear();
-        HeatSourceEvent.dataFluids.clear();
-        MagmaticFluidEvent.dataFluids.clear();
-        ReactorFuelEvent.dataItems.clear();
+        CoolantsEvent.addedFluids.clear();
+        CoolantsEvent.addedItems.clear();
+        HeatSourceEvent.addedBlocks.clear();
+        HeatSourceEvent.addedFluids.clear();
+        MagmaticFluidEvent.addedFluids.clear();
+        ReactorFuelEvent.addedItems.clear();
     }
 
     public static class CoolantsEvent implements KubeEvent {
         public static CoolantsEvent INSTANCE = new CoolantsEvent();
 
-        private static Map<ResourceLocation, Integer> dataFluids = new LinkedHashMap<>();
-        private static Map<ResourceLocation, Pair<Integer, Integer>> dataItems = new LinkedHashMap<>();
+        private static Map<ResourceLocation, Integer> addedFluids = new LinkedHashMap<>();
+        private static Map<ResourceLocation, Pair<Integer, Integer>> addedItems = new LinkedHashMap<>();
+        private static List<ResourceLocation> removedFluids = new ArrayList();
+        private static List<ResourceLocation> removedItems = new ArrayList();
 
         public void addFluid(ResourceLocation res, int cool) {
-            dataFluids.put(res, cool);
+            addedFluids.put(res, cool);
         }
 
         public void addSolid(ItemStack res, int cool) {
-            dataItems.put(BuiltInRegistries.ITEM.getKey(res.getItem()), Pair.of(res.getCount(), cool));
+            addedItems.put(BuiltInRegistries.ITEM.getKey(res.getItem()), Pair.of(res.getCount(), cool));
+        }
+
+        public void removeFluid(ResourceLocation fluid) {
+            removedFluids.add(fluid);
+        }
+
+        public void removeSolid(ResourceLocation solid) {
+            removedItems.add(solid);
         }
     }
 
     public static class HeatSourceEvent implements KubeEvent {
         public static HeatSourceEvent INSTANCE = new HeatSourceEvent();
 
-        private static Map<ResourceLocation, Integer> dataBlocks = new LinkedHashMap<>();
-        private static Map<ResourceLocation, Integer> dataFluids = new LinkedHashMap<>();
+        private static Map<ResourceLocation, Integer> addedBlocks = new LinkedHashMap<>();
+        private static Map<ResourceLocation, Integer> addedFluids = new LinkedHashMap<>();
+        private static List<ResourceLocation> removedBlocks = new ArrayList();
+        private static List<ResourceLocation> removedFluids = new ArrayList();
 
         public void addBlock(ResourceLocation res, int heat) {
-            dataBlocks.put(res, heat);
+            addedBlocks.put(res, heat);
         }
 
         public void addFluid(ResourceLocation res, int heat) {
-            dataFluids.put(res, heat);
+            addedFluids.put(res, heat);
+        }
+
+        public void removeBlock(ResourceLocation block) {
+            removedBlocks.add(block);
+        }
+
+        public void removeFluid(ResourceLocation solid) {
+            removedFluids.add(solid);
         }
     }
 
     public static class MagmaticFluidEvent implements KubeEvent {
         public static MagmaticFluidEvent INSTANCE = new MagmaticFluidEvent();
 
-        private static Map<ResourceLocation, Integer> dataFluids = new LinkedHashMap<>();
+        private static Map<ResourceLocation, Integer> addedFluids = new LinkedHashMap<>();
+        private static List<ResourceLocation> removedFluids = new ArrayList();
 
         public void add(ResourceLocation res, int heat) {
-            dataFluids.put(res, heat);
+            addedFluids.put(res, heat);
+        }
+
+        public void remove(ResourceLocation fluid) {
+            removedFluids.add(fluid);
         }
     }
 
     public static class ReactorFuelEvent implements KubeEvent {
         public static ReactorFuelEvent INSTANCE = new ReactorFuelEvent();
 
-        private static Map<ResourceLocation, Pair<Integer, Integer>> dataItems = new LinkedHashMap<>();
+        private static Map<ResourceLocation, Pair<Integer, Integer>> addedItems = new LinkedHashMap<>();
+        private static List<ResourceLocation> removedItems = new ArrayList();
 
         public void add(ItemStack res, int heat) {
-            dataItems.put(BuiltInRegistries.ITEM.getKey(res.getItem()), Pair.of(res.getCount(), heat));
+            addedItems.put(BuiltInRegistries.ITEM.getKey(res.getItem()), Pair.of(res.getCount(), heat));
+        }
+
+        public void remove(ResourceLocation item) {
+            removedItems.add(item);
         }
     }
 }
